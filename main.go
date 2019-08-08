@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 type Trovit struct {
@@ -48,4 +49,11 @@ func main() {
 	for index, element := range trovit.Ads {
 		fmt.Println(index, element.Title)
 	}
+
+	output, err := xml.MarshalIndent(trovit, "", "    ")
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+
+	os.Stdout.Write(output)
 }
