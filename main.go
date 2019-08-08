@@ -56,4 +56,43 @@ func main() {
 	}
 
 	os.Stdout.Write(output)
+
+	// Dump an HTML page.
+	htmlFile, err := os.Create("index.html")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+	header := `<html>
+<head>
+</head>
+<body>
+<table>
+<tr>
+<th>ID</th>
+<th>URL</th>
+<th>Title</th>
+<th>City</th>
+</tr>
+<thead>
+</thead>`
+
+	row := `<tr>
+<td>%s</td>
+<td>%s</td>
+<td>%s</td>
+<td>%s</td>
+</tr>`
+
+	footer := `
+</tbody>
+</table>
+</body>
+</html>`
+
+	fmt.Fprintln(htmlFile, header)
+	for _, e := range trovit.Ads {
+		fmt.Fprintf(htmlFile, row, e.Id, e.URL, e.Title, e.City)
+	}
+	fmt.Fprintln(htmlFile, footer)
+
 }
