@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -46,17 +45,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-
-	for index, element := range trovit.Ads {
-		fmt.Println(index, element.Title)
-	}
-
-	output, err := xml.MarshalIndent(trovit, "", "    ")
-	if err != nil {
-		log.Printf("error: %v", err)
-	}
-
-	os.Stdout.Write(output)
 
 	// Dump an HTML page.
 	htmlFile, err := os.Create("index.html")
