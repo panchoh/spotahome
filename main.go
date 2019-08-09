@@ -75,51 +75,7 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 
-	const tpl = `
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Trovit!</title>
-	</head>
-	<body>
-		<table>
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>City</th>
-					<th>Title</th>
-					<th>Picture</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{range $ad := .Ads}}
-				<tr>
-					<td>{{$ad.Id}}</td>
-					<td>{{$ad.City}}</td>
-					<td><a href="{{$ad.URL}}">{{$ad.Title}}</a></td>
-					<td>
-					{{with $pics := .Pictures.Pictures}}
-						{{with $pic := (index $pics 0).URL}}
-						<a href="{{$pic}}">
-							<img src="{{$pic}}"
-								alt="{{$ad.Title}}, {{$ad.City}}"
-								height="100"
-							>
-						</a>
-						{{end}}
-					{{else}}
-						Picture not available.
-					{{end}}
-					</td>
-				</tr>
-				{{end}}
-			</tbody>
-		</table>
-	</body>
-</html>`
-
-	t := template.Must(template.New("trovit").Parse(tpl))
+	t := template.Must(template.ParseFiles("trovit.html.tmpl"))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		err = t.Execute(w, trovit)
