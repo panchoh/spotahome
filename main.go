@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
@@ -60,39 +61,43 @@ func main() {
 	// Dump an HTML page.
 	htmlFile, err := os.Create("index.html")
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Printf("error: %v", err)
 	}
-	header := `<html>
-<head>
-</head>
-<body>
-<table>
-<tr>
-<th>ID</th>
-<th>URL</th>
-<th>Title</th>
-<th>City</th>
-</tr>
-<thead>
-</thead>`
-
-	row := `<tr>
-<td>%s</td>
-<td>%s</td>
-<td>%s</td>
-<td>%s</td>
-</tr>`
-
-	footer := `
-</tbody>
-</table>
-</body>
+	const tpl = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Trovit!</title>
+	</head>
+	<body>
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>URL</th>
+					<th>Title</th>
+					<th>City</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range .Ads}}
+				<tr>
+					<td>{{.Id}}</td>
+					<td>{{.URL}}</td>
+					<td>{{.Title}}</td>
+					<td>{{.City}}</td>
+				</tr>
+				{{end}}
+			</tbody>
+		</table>
+	</body>
 </html>`
 
-	fmt.Fprintln(htmlFile, header)
-	for _, e := range trovit.Ads {
-		fmt.Fprintf(htmlFile, row, e.Id, e.URL, e.Title, e.City)
-	}
-	fmt.Fprintln(htmlFile, footer)
+	t := template.Must(template.New("trovit").Parse(tpl))
 
+	err = t.Execute(htmlFile, trovit)
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
 }
