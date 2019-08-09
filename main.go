@@ -75,18 +75,24 @@ func main() {
 			<thead>
 				<tr>
 					<th>ID</th>
-					<th>URL</th>
-					<th>Title</th>
 					<th>City</th>
+					<th>Title</th>
+					<th>Picture</th>
 				</tr>
 			</thead>
 			<tbody>
 				{{range .Ads}}
 				<tr>
 					<td>{{.Id}}</td>
-					<td>{{.URL}}</td>
-					<td>{{.Title}}</td>
 					<td>{{.City}}</td>
+					<td><a href="{{.URL}}">{{.Title}}</a></td>
+					<td>
+						{{if .Pictures.Pictures}}
+						<a href="{{(index .Pictures.Pictures 0).URL}}"><img src="{{(index .Pictures.Pictures 0).URL}}" alt="{{.Title}}" height="100"></a>
+						{{else}}
+						Picture not available.
+						{{end}}
+					</td>
 				</tr>
 				{{end}}
 			</tbody>
