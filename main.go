@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/xml"
+	"flag"
 	"html/template"
 	"io/ioutil"
 	"log"
-	"os"
+	"net/http"
 )
 
 type Trovit struct {
@@ -33,7 +34,13 @@ type Picture struct {
 	Title   string   `xml:"picture_title"`
 }
 
+var (
+	httpAddr = flag.String("http", ":8080", "Listen address")
+)
+
 func main() {
+	flag.Parse()
+
 	xmlValue, err := ioutil.ReadFile("mitula-UK-en.xml")
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -46,11 +53,6 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 
-	// Dump an HTML page.
-	htmlFile, err := os.Create("index.html")
-	if err != nil {
-		log.Printf("error: %v", err)
-	}
 	const tpl = `
 <!DOCTYPE html>
 <html>
@@ -97,8 +99,13 @@ func main() {
 
 	t := template.Must(template.New("trovit").Parse(tpl))
 
-	err = t.Execute(htmlFile, trovit)
-	if err != nil {
-		log.Printf("error: %v", err)
-	}
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err = t.Execute(w, trovit)
+		if err != nil {
+			log.Printf("error: %v", err)
+		}
+	})
+
+	log.Printf("Starting HTTP server on %s.", *httpAddr)
+	log.Fatal(http.ListenAndServe(*httpAddr, nil))
 }
