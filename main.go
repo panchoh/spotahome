@@ -38,10 +38,32 @@ var (
 	httpAddr = flag.String("http", ":8080", "Listen address")
 )
 
+func fetchXML() ([]byte, error) {
+	xmlValue, err := ioutil.ReadFile("mitula-UK-en.xml")
+	if err == nil {
+		log.Println("fetchXML: Using cached file")
+		return xmlValue, nil
+	}
+
+	resp, err := http.Get("https://feeds.spotahome.com/mitula-UK-en.xml")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
 func main() {
 	flag.Parse()
 
-	xmlValue, err := ioutil.ReadFile("mitula-UK-en.xml")
+	log.Println("Fetching XML.")
+	xmlValue, err := fetchXML()
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
