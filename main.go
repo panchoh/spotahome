@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 )
 
 type Trovit struct {
@@ -37,6 +38,28 @@ type Picture struct {
 var (
 	httpAddr = flag.String("http", ":8080", "Listen address")
 )
+
+func (t *Trovit) sortBy(s string) *Trovit {
+	var st Trovit
+	var sorter func(i, j int) bool
+	switch s {
+	case "id":
+		sorter = func(i, j int) bool { return st.Ads[i].Id < st.Ads[j].Id }
+	case "city":
+		sorter = func(i, j int) bool { return st.Ads[i].City < st.Ads[j].City }
+	case "title":
+		sorter = func(i, j int) bool { return st.Ads[i].Title < st.Ads[j].Title }
+	default:
+		// Return immediately, don't sort
+		return t
+	}
+	st.Ads = make([]Ad, len(t.Ads))
+	copy(st.Ads, t.Ads)
+
+	sort.Slice(st.Ads, sorter)
+
+	return &st
+}
 
 func fetchXML() ([]byte, error) {
 	xmlValue, err := ioutil.ReadFile("mitula-UK-en.xml")
@@ -78,7 +101,8 @@ func main() {
 	t := template.Must(template.ParseFiles("trovit.html.tmpl"))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err = t.Execute(w, trovit)
+		s := r.FormValue("s")
+		err = t.Execute(w, trovit.sortBy(s))
 		if err != nil {
 			log.Printf("error: %v", err)
 		}
