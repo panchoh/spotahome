@@ -3,40 +3,51 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Trovit!</title>
+		<style type="text/css">
+			th, td {padding: 15px;}
+			th {background-color: #4CAF50;}
+			tr:nth-child(even) {background-color: #f2f2f2;}
+			.wrap {
+				width: 800px;
+				margin: 0 auto;
+			}
+		</style>
 	</head>
 	<body>
-		<table>
-			<thead>
-				<tr>
-					<th><a href="?s=id">ID</a></th>
-					<th><a href="?s=city">City</a></th>
-					<th><a href="?s=title">Title</a></th>
-					<th>Picture</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{range $ad := .Ads}}
-				<tr>
-					<td>{{$ad.Id}}</td>
-					<td>{{$ad.City}}</td>
-					<td><a href="{{$ad.URL}}">{{$ad.Title}}</a></td>
-					<td>
-					{{with $pics := .Pictures.Pictures}}
-						{{with $pic := (index $pics 0).URL}}
-						<a href="{{$pic}}">
-							<img src="{{$pic}}"
-								alt="{{$ad.Title}}, {{$ad.City}}"
-								height="100"
-							>
-						</a>
+		<div class="wrap">
+			<table>
+				<thead>
+					<tr>
+						<th><a href="?s=id">ID</a></th>
+						<th><a href="?s=city">City</a></th>
+						<th><a href="?s=title">Title</a></th>
+						<th>Picture</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{range $ad := .Ads}}
+					<tr>
+						<td>{{$ad.Id}}</td>
+						<td>{{$ad.City}}</td>
+						<td><a href="{{$ad.URL}}">{{$ad.Title}}</a></td>
+						<td>
+						{{with $pics := .Pictures.Pictures}}
+							{{with $pic := (index $pics 0).URL}}
+							<a href="{{$pic}}">
+								<img src="{{$pic}}"
+									alt="{{$ad.Title}}, {{$ad.City}}"
+									height="100"
+								>
+							</a>
+							{{end}}
+						{{else}}
+							Picture not available.
 						{{end}}
-					{{else}}
-						Picture not available.
+						</td>
+					</tr>
 					{{end}}
-					</td>
-				</tr>
-				{{end}}
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</div>
 	</body>
 </html>
