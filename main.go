@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"html/template"
@@ -11,28 +12,29 @@ import (
 )
 
 type Trovit struct {
-	XMLName xml.Name `xml:"trovit"`
-	Ads     []Ad     `xml:"ad"`
+	XMLName  xml.Name `xml:"trovit" json:"-"`
+	Ads      []Ad     `xml:"ad"     json:"ad"`
+	SortedBy string   `xml:"-"      json:"-"`
 }
 
 type Ad struct {
-	XMLName  xml.Name `xml:"ad"`
-	Id       int      `xml:"id"`
-	URL      string   `xml:"url"`
-	Title    string   `xml:"title"`
-	City     string   `xml:"city"`
-	Pictures Pictures `xml:"pictures"`
+	XMLName  xml.Name `xml:"ad"       json:"-"`
+	Id       int      `xml:"id"       json:"id"`
+	URL      string   `xml:"url"      json:"url"`
+	Title    string   `xml:"title"    json:"title"`
+	City     string   `xml:"city"     json:"city"`
+	Pictures Pictures `xml:"pictures" json:"pictures"`
 }
 
 type Pictures struct {
-	XMLName  xml.Name  `xml:"pictures"`
-	Pictures []Picture `xml:"picture"`
+	XMLName  xml.Name  `xml:"pictures" json:"-"`
+	Pictures []Picture `xml:"picture"  json:"picture,omitempty"`
 }
 
 type Picture struct {
-	XMLName xml.Name `xml:"picture"`
-	URL     string   `xml:"picture_url"`
-	Title   string   `xml:"picture_title"`
+	XMLName xml.Name `xml:"picture"       json:"-"`
+	URL     string   `xml:"picture_url"   json:"picture_url"`
+	Title   string   `xml:"picture_title" json:"picture_title"`
 }
 
 var (
@@ -57,6 +59,7 @@ func (t *Trovit) sortBy(s string) *Trovit {
 	copy(st.Ads, t.Ads)
 
 	sort.Slice(st.Ads, sorter)
+	st.SortedBy = s
 
 	return &st
 }
@@ -106,6 +109,18 @@ func main() {
 		if err != nil {
 			log.Printf("error: %v", err)
 		}
+	})
+
+	http.HandleFunc("/json", func(w http.ResponseWriter, r *http.Request) {
+		s := r.FormValue("s")
+		j, err := json.Marshal(trovit.sortBy(s))
+		if err != nil {
+			log.Printf("error marshaling JSON: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Write(j)
 	})
 
 	log.Printf("Starting HTTP server on %s.", *httpAddr)
