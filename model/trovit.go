@@ -2,9 +2,6 @@ package model
 
 import (
 	"encoding/xml"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"sort"
 )
 
@@ -55,25 +52,4 @@ func (t *Trovit) SortBy(s string) *Trovit {
 	st.SortedBy = s
 
 	return &st
-}
-
-func FetchXML() ([]byte, error) {
-	xmlValue, err := ioutil.ReadFile("mitula-UK-en.xml")
-	if err == nil {
-		log.Println("fetchXML: Using cached file")
-		return xmlValue, nil
-	}
-
-	resp, err := http.Get("https://feeds.spotahome.com/mitula-UK-en.xml")
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
 }

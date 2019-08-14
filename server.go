@@ -13,13 +13,14 @@ import (
 
 var (
 	httpAddr = flag.String("http", ":8080", "Listen address")
+	url      = flag.String("url", model.URL, "URL of the XML resource")
 )
 
 func main() {
 	flag.Parse()
 
 	log.Println("Fetching XML.")
-	xmlValue, err := model.FetchXML()
+	xmlValue, err := model.Fetch(*url)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
