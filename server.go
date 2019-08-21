@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/panchoh/spotahome/model"
 )
@@ -35,14 +36,17 @@ func main() {
 	t := template.Must(template.ParseFiles("trovit.html.tmpl"))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 		s := r.FormValue("s")
 		err = t.Execute(w, trovit.SortBy(s))
 		if err != nil {
 			log.Printf("error: %v", err)
 		}
+		log.Printf("Serving /, s = ‘%s’, %.2fs elapsed", s, time.Since(start).Seconds())
 	})
 
 	http.HandleFunc("/json", func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 		s := r.FormValue("s")
 		j, err := json.Marshal(trovit.SortBy(s))
 		if err != nil {
@@ -52,6 +56,7 @@ func main() {
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Write(j)
+		log.Printf("Serving /json, s = ‘%s’, %.2fs elapsed", s, time.Since(start).Seconds())
 	})
 
 	log.Printf("Starting HTTP server on %s.", *httpAddr)
