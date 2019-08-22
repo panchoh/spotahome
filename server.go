@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"flag"
-	"html/template"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/panchoh/spotahome/model"
+	"github.com/panchoh/spotahome/view"
 )
 
 var (
@@ -33,7 +33,7 @@ func main() {
 		log.Fatalf("error: %v", err)
 	}
 
-	t := template.Must(template.ParseFiles("trovit.html.tmpl"))
+	t := view.Trovit
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
