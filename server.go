@@ -37,6 +37,10 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
 		s := r.FormValue("s")
 		err = t.Execute(w, trovit.SortBy(s))
 		if err != nil {
